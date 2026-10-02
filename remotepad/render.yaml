@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: remotepad
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: ACCESS_PASSWORD
+        sync: false
+      - key: AGENT_TOKEN
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
