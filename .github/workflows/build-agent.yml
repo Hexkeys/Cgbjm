@@ -1,0 +1,35 @@
+name: Build Windows agent
+
+on:
+  push:
+    branches: [main]
+    paths: ['remotepad/agent/**', '.github/workflows/build-agent.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install -r remotepad/agent/requirements.txt pyinstaller
+
+      - run: pyinstaller --onefile --console --name RemotePad-Agent --hidden-import pynput.keyboard._win32 --hidden-import pynput.mouse._win32 remotepad/agent/agent.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RemotePad-Agent
+          path: dist/RemotePad-Agent.exe
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest agent build
+          files: dist/RemotePad-Agent.exe
